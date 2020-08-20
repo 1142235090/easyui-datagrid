@@ -1,0 +1,139 @@
+<html>
+	<head>
+		<link type="text/css" rel="stylesheet" href="plug-in/jquery-easyui-1.9.7//themes/default/easyui.css"/>
+		<link type="text/css" rel="stylesheet" href="plug-in/jquery-easyui-1.9.7//themes/icon.css"/>
+		<link href="http://hayageek.github.io/jQuery-Upload-File/4.0.11/uploadfile.css" rel="stylesheet">
+   </head>
+   <body>
+   	   <!-- 删除按钮 -->
+   	   <button id="remove">删除选中的行</button>
+   	   <button id="add">增加</button>
+		<input  type="text" placeholder="请输入"  id="name" />
+		<input type="submit" name="submit" value="搜索"  id="search"/>
+   	    <!-- table 容器 -->
+       <table id="dg" width="402px"></table>
+       <!-- 文件上传 -->
+       <div id="fileuploader">Upload</div>
+       <!-- js引用 -->
+	   <script src="plug-in/jquery-easyui-1.9.7/jquery.min.js"></script>
+	   <script src="plug-in/jquery-easyui-1.9.7/locale/easyui-lang-zh_CN.js"></script>
+	   <script src="plug-in/jquery-easyui-1.9.7/jquery.easyui.min.js"></script>
+	   <script src="http://hayageek.github.io/jQuery-Upload-File/4.0.11/jquery.uploadfile.min.js"></script>
+	   <script type="text/javascript">
+			$(function () {
+				//1.初始化列表获取界面元素
+				var $table = $('#dg');
+				table.init($table,obj);
+				//2.绑定删除事件
+				$("#remove").click(function(){
+					//2.1取出当前选择的行所对应的数据下标
+					var index = $table.datagrid('getRowIndex',$table.datagrid('getSelected'));
+					//2.2如果未选择直接点删除则不执行操作
+					if(index<0){
+						return;
+					}
+					//2.3删除该元素
+					obj.rows.splice(index,1);
+					//3.3.1如果全部删除则空白一行
+					if(obj.rows.length<1){
+						obj.rows[0]= {
+						  	"id":-1,
+							"name": "",
+							"model": "",
+							"type": "",
+							"num": ""
+						  };
+					}
+					table.init($table,obj);	
+				});
+				//3.搜索事件
+				$("#search").click(function(){
+					//3.1将数据拷贝一份用于搜索使用
+					var cObj = JSON.parse(JSON.stringify(obj));
+					var selectName = $("#name").val();
+					//3.2如果搜索框内容为空则加载原本的界面
+					if(!selectName){
+						table.init($table,obj);
+						return;
+					}
+					//3.3数据过滤
+					$.each(cObj.rows,function(index,data){
+						if(data){
+							if(data.name.indexOf(selectName)<0){
+								cObj.rows.splice(index,1);
+								table.init($table,cObj);
+							}
+						}
+					})
+				});
+				//4.增加数量
+				$("#add").click(function(){
+					//4.1获得选中数据所在的下标
+					var index = $table.datagrid('getRowIndex',$table.datagrid('getSelected'));
+					//4.2未选择直接点则不做处理
+					if(index<0){
+						return;
+					}
+					//4.2将数量+1
+					var item = obj.rows[index];
+					var num = item.num;
+					item.num = num+1;
+					table.init($table,obj);	
+				});
+				//5.文件上传
+				 $("#fileuploader").uploadFile({
+					url:"YOUR_FILE_UPLOAD_URL",
+					fileName:"myfile"
+				 });
+			});
+
+			/**
+			 * 假数据
+			 * @type {Object}
+			 */
+		    var obj = {
+			    "total":3,
+			    "rows": [
+				 {
+				  	"id":1,
+					"name": "榴莲",
+					"model": "热带水果",
+					"type": "水果",
+					"num": 12
+				  },{
+				  	"id":2,
+					"name": "芒果",
+					"model": "热带水果",
+					"type": "水果",
+					"num": 12
+				  },{
+				  	"id":3,
+					"name": "菠萝",
+					"model": "热带水果",
+					"type": "水果",
+					"num": 12
+				  }
+			    ]
+			}
+
+			/**
+			 * table工具
+			 * @type {Object}
+			 */
+			var table = {
+				init :function($table,data){
+					$table.datagrid({
+						data:data,
+						columns:[[
+							{field:'name',title:'商品名称',width:100},
+							{field:'model',title:'商品型号',width:100},
+							{field:'type',title:'类型',width:100,},
+							{field:'num',title:'数量',width:100}
+						]],
+						singleSelect:true
+					});
+				}
+			}
+	   </script>
+	</body>
+</html>
